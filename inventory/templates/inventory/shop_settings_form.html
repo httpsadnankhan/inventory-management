@@ -1,0 +1,71 @@
+{% extends "inventory/base.html" %}
+{% block title %}Shop Settings{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <h3 class="page-title mb-3"><i class="bi bi-shop"></i> Shop Settings</h3>
+    <p class="text-muted mb-3">This logo and these contact details appear on every printed sale receipt.</p>
+
+    <div class="card card-stat p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row align-items-center mb-3">
+          <div class="col-auto">
+            {% if shop.logo %}
+              <img src="{{ shop.logo.url }}" alt="Shop logo" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #eee;">
+            {% else %}
+              <div class="d-flex align-items-center justify-content-center bg-light" style="width:72px;height:72px;border-radius:10px;">
+                <i class="bi bi-gem" style="font-size:1.8rem;color:#b8860b;"></i>
+              </div>
+            {% endif %}
+          </div>
+          <div class="col">
+            <label class="form-label mb-1"><i class="bi bi-image"></i> Shop Logo</label>
+            {{ form.logo }}
+            <small class="text-muted">A square image works best. Leave blank to use the default gem icon.</small>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-7 mb-3">
+            <label class="form-label"><i class="bi bi-shop-window"></i> Shop Name</label>
+            {{ form.shop_name }}
+            {{ form.shop_name.errors }}
+          </div>
+          <div class="col-md-5 mb-3">
+            <label class="form-label">Tagline</label>
+            {{ form.tagline }}
+          </div>
+        </div>
+
+        <hr>
+        <h6 class="text-muted mb-3">Contact Details (shown on receipts)</h6>
+        <div class="mb-3">
+          <label class="form-label"><i class="bi bi-geo-alt"></i> Shop Address</label>
+          {{ form.address }}
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label"><i class="bi bi-telephone"></i> Phone Number</label>
+            {{ form.phone }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label"><i class="bi bi-envelope"></i> Email</label>
+            {{ form.email }}
+            {{ form.email.errors }}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Receipt Footer Note</label>
+          {{ form.receipt_note }}
+          <small class="text-muted">E.g. a thank-you line or return/exchange policy.</small>
+        </div>
+
+        <button type="submit" class="btn btn-amj"><i class="bi bi-check-lg"></i> Save Shop Settings</button>
+        <a href="{% url 'inventory:dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

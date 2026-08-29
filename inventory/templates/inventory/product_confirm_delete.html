@@ -1,0 +1,46 @@
+{% extends "inventory/base.html" %}
+{% block title %}Delete Product{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <h3 class="page-title mb-3"><i class="bi bi-exclamation-octagon-fill text-danger"></i> Delete Product</h3>
+    <div class="card card-stat p-4">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" class="product-thumb-lg" alt="{{ product.name }}">
+        {% else %}
+          <div class="product-thumb-lg bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center">
+            <i class="bi bi-gem"></i>
+          </div>
+        {% endif %}
+        <div>
+          <h5 class="mb-0">{{ product.name }}</h5>
+          <small class="text-muted">SKU: {{ product.sku }} &middot; {{ product.quantity }} in stock</small>
+        </div>
+      </div>
+
+      <div class="alert alert-danger d-flex gap-2">
+        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+        <div>
+          <strong>This action cannot be undone.</strong> Deleting this product will permanently erase
+          <strong>all data related to it</strong>, including:
+          <ul class="mb-0 mt-2">
+            <li>{{ sales_count }} sale record{{ sales_count|pluralize }}{% if sales_count %} (and their printed receipt history){% endif %}</li>
+            <li>{{ repairs_count }} repair record{{ repairs_count|pluralize }}</li>
+            <li>The product's photo, pricing, and description</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="text-muted">If you just want to stop selling this item but keep its history, edit the
+        product and set its <strong>quantity to 0</strong> instead of deleting it.</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Yes, Permanently Delete Everything</button>
+        <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "inventory/base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="col-md-5 col-lg-4">
+    <div class="text-center mb-4">
+      {% if shop.logo %} 
+        <img src="{{ shop.logo.url }}" 
+          alt="{{ shop.shop_name }} logo" 
+          style="width:96px; height:96px; 
+          object-fit:contain; display:block; 
+          margin:0 auto; border-radius: 20%;"> 
+        {% else %} 
+          <i class="bi bi-gem" 
+          style="font-size:3rem; color:#b8860b;"></i> 
+      {% endif %}
+      <!--<h2 class="fw-bold mt-2" style="color:#1c1c1c;">{{ shop.shop_name }}</h2> -->
+      <p class="text-muted mb-0">Inventory Management System</p>
+      <small class="text-muted">Authorized personnel only</small>
+    </div>
+    <div class="card card-stat p-4">
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          {{ form.username }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          {{ form.password }}
+        </div>
+        <button type="submit" class="btn btn-amj w-100"><i class="bi bi-box-arrow-in-right"></i> Login</button>
+      </form>
+    </div>
+    <p class="text-center text-muted mt-3" style="font-size:.85rem;">
+      Don't have access? Contact the shop administrator to get an account created.
+    </p>
+  </div>
+</div>
+{% endblock %}

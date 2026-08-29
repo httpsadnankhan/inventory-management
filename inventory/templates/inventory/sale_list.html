@@ -1,0 +1,53 @@
+{% extends "inventory/base.html" %}
+{% load humanize %}
+{% block title %}Sales{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="page-title mb-0"><i class="bi bi-cash-coin"></i> Sales</h3>
+  <a href="{% url 'inventory:sale_add' %}" class="btn btn-amj btn-sm"><i class="bi bi-plus-lg"></i> New Sale</a>
+</div>
+
+<div class="card card-stat">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th></th><th>Date</th><th>Product</th><th>Qty</th><th>Unit Price</th>
+          <th>Discount</th><th>Total</th><th>Customer</th><th>Contact</th><th>Sold By</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in sales %}
+        <tr>
+          <td>
+            {% if s.product.image %}
+              <img src="{{ s.product.image.url }}" class="product-thumb" alt="{{ s.product.name }}">
+            {% else %}
+              <div class="product-thumb bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center">
+                <i class="bi bi-gem"></i>
+              </div>
+            {% endif %}
+          </td>
+          <td>{{ s.sale_date|date:"d M Y H:i" }}</td>
+          <td><a href="{% url 'inventory:product_detail' s.product.pk %}" class="text-dark fw-semibold">{{ s.product.name }}</a></td>
+          <td>{{ s.quantity }}</td>
+          <td>Rs {{ s.unit_price|intcomma }}</td>
+          <td>{% if s.discount %}<span class="text-danger">- Rs {{ s.discount|intcomma }}</span>{% else %}—{% endif %}</td>
+          <td class="fw-semibold">Rs {{ s.total_amount|intcomma }}</td>
+          <td>{{ s.customer_name }}</td>
+          <td>{{ s.customer_contact|default:"—" }}</td>
+          <td>{{ s.sold_by|default:"—" }}</td>
+          <td class="d-flex gap-1">
+            <a href="{% url 'inventory:sale_receipt' s.pk %}" target="_blank" class="btn btn-sm btn-outline-dark" title="Print receipt"><i class="bi bi-receipt-cutoff"></i></a>
+            <a href="{% url 'inventory:sale_edit' s.pk %}" class="btn btn-sm btn-outline-secondary" title="Edit sale"><i class="bi bi-pencil-square"></i></a>
+            <a href="{% url 'inventory:sale_delete' s.pk %}" class="btn btn-sm btn-outline-danger" title="Delete sale"><i class="bi bi-trash3"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="11" class="text-center text-muted py-4">No sales recorded yet. <a href="{% url 'inventory:sale_add' %}">Record your first sale</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

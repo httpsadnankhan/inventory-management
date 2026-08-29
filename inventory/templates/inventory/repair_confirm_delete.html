@@ -1,0 +1,28 @@
+{% extends "inventory/base.html" %}
+{% block title %}Delete Repair Record{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <h3 class="page-title mb-3"><i class="bi bi-trash3-fill text-danger"></i> Delete Repair Record</h3>
+    <div class="card card-stat p-4">
+      <p class="mb-1"><strong>{{ repair.product.name }}</strong> &times; {{ repair.quantity }}</p>
+      <p class="text-muted">Sent to {{ repair.sent_to }} on {{ repair.sent_date }}</p>
+      {% if repair.status == 'SENT' %}
+        <div class="alert alert-info">
+          This item is still out for repair. Deleting this record will add {{ repair.quantity }} unit(s) of
+          <strong>{{ repair.product.name }}</strong> back into stock.
+        </div>
+      {% else %}
+        <div class="alert alert-secondary">
+          This item was already marked received, so no stock adjustment will be made.
+        </div>
+      {% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash3"></i> Yes, Delete This Record</button>
+        <a href="{% url 'inventory:repair_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "inventory/base.html" %}
+{% block title %}Receive Repair{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <h3 class="fw-bold mb-3"><i class="bi bi-box-arrow-in-down"></i> Mark Item Received</h3>
+    <div class="card card-stat p-4">
+      <p class="mb-1"><strong>{{ repair.product.name }}</strong> &times; {{ repair.quantity }}</p>
+      <p class="text-muted">Sent to <strong>{{ repair.sent_to }}</strong> on {{ repair.sent_date }}</p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Received Date</label>
+          {{ form.received_date }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Final Repair Cost (Rs, optional)</label>
+          {{ form.repair_cost }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Notes</label>
+          {{ form.notes }}
+        </div>
+        <button type="submit" class="btn btn-amj"><i class="bi bi-check-lg"></i> Confirm Received &amp; Restock</button>
+        <a href="{% url 'inventory:repair_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "inventory/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <h3 class="page-title mb-3"><i class="bi bi-tools"></i> {{ title }}</h3>
+    <div class="alert alert-info">
+      <strong>{{ repair.product.name }}</strong> &times; {{ repair.quantity }} — already marked received, so
+      product and quantity are locked (that stock is already back on the shelf). You can still correct every
+      other detail below.
+    </div>
+    <div class="card card-stat p-4">
+      <form method="post">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-7 mb-3">
+            <label class="form-label">Sent To (Karigar / Workshop Name)</label>
+            {{ form.sent_to }}
+            {{ form.sent_to.errors }}
+          </div>
+          <div class="col-md-5 mb-3">
+            <label class="form-label">Their Contact Number</label>
+            {{ form.sent_to_contact }}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Issue / Reason for Repair</label>
+          {{ form.issue_description }}
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Sent Date</label>
+            {{ form.sent_date }}
+            {{ form.sent_date.errors }}
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Expected Return Date</label>
+            {{ form.expected_return_date }}
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Received Date</label>
+            {{ form.received_date }}
+            {{ form.received_date.errors }}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Repair Cost (Rs)</label>
+          {{ form.repair_cost }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Notes</label>
+          {{ form.notes }}
+        </div>
+        <button type="submit" class="btn btn-amj"><i class="bi bi-check-lg"></i> Save Changes</button>
+        <a href="{% url 'inventory:repair_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt #{{ sale.pk|stringformat:"05d" }} | {{ shop.shop_name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --amj-gold: #b8860b; --amj-black: #1a1a1a; }
+        * { box-sizing: border-box; }
+        body {
+            background: #ece8de;
+            font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+            color: #232323;
+            margin: 0;
+            padding: 28px 12px;
+        }
+        .page-actions {
+            max-width: 480px;
+            margin: 0 auto 14px auto;
+            display: flex;
+            justify-content: space-between;
+        }
+        .page-actions a, .page-actions button {
+            border: 1px solid #999;
+            background: #fff;
+            color: #333;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: .85rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .page-actions .btn-print {
+            background: var(--amj-gold);
+            border-color: var(--amj-gold);
+            color: #1c1c1c;
+            font-weight: 600;
+        }
+
+        .receipt {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #fffdf8;
+            border: 1px solid #e2dcc8;
+            border-radius: 12px;
+            box-shadow: 0 4px 22px rgba(0,0,0,.10);
+            overflow: hidden;
+        }
+        .receipt-header {
+            background: linear-gradient(160deg, #141414, #2c2213 65%, #3a2f1c);
+            color: #fff;
+            text-align: center;
+            padding: 28px 20px 20px 20px;
+            border-bottom: 3px solid var(--amj-gold);
+        }
+        .receipt-header .logo-wrap {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fffdf8;
+            border-radius: 10%;
+            border: 2px solid var(--amj-gold);
+            box-shadow: 0 2px 10px rgba(0,0,0,.25);
+            overflow: hidden;
+        }
+        .receipt-header .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .receipt-header .logo-fallback {
+            font-size: 2rem;
+            color: var(--amj-gold);
+        }
+        .receipt-header .brand {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--amj-gold);
+            letter-spacing: 1.5px;
+            margin: 0;
+            line-height: 1.25;
+        }
+        .receipt-header .tagline {
+            font-size: .68rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #d8cba0;
+            margin-top: 5px;
+        }
+        .receipt-header .hr-divider {
+            width: 46px;
+            height: 2px;
+            background: var(--amj-gold);
+            opacity: .6;
+            margin: 12px auto 0 auto;
+        }
+        .receipt-body { padding: 22px 22px 6px 22px; }
+        .receipt-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: .82rem;
+            color: #555;
+            border-bottom: 1px dashed #ddd2ad;
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+        }
+        .receipt-meta strong { color: #222; }
+        .section-label {
+            text-transform: uppercase;
+            font-size: .68rem;
+            letter-spacing: 1px;
+            color: #a1852f;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .customer-block { margin-bottom: 16px; font-size: .88rem; }
+        .customer-block .name { font-weight: 700; font-size: 1rem; }
+
+        table.items { width: 100%; border-collapse: collapse; font-size: .85rem; margin-bottom: 10px; }
+        table.items th {
+            text-align: left;
+            border-bottom: 2px solid var(--amj-black);
+            padding: 6px 4px;
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #555;
+        }
+        table.items td { padding: 10px 4px; border-bottom: 1px solid #eee; vertical-align: top; }
+        table.items td.num, table.items th.num { text-align: right; }
+        .item-name { font-weight: 600; }
+        .item-meta { font-size: .75rem; color: #888; }
+
+        .totals { margin-top: 8px; font-size: .88rem; }
+        .totals .row-line { display: flex; justify-content: space-between; padding: 3px 0; }
+        .totals .discount-line { color: #b02a2a; }
+        .totals .grand-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-top: 2px solid var(--amj-black);
+            margin-top: 8px;
+            padding-top: 10px;
+            color: var(--amj-black);
+        }
+        .grand-total .amount { color: #8a6508; }
+
+        .receipt-footer {
+            text-align: center;
+            padding: 16px 20px 20px 20px;
+            font-size: .74rem;
+            color: #888;
+            border-top: 1px dashed #ddd2ad;
+        }
+        .receipt-footer .thanks {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: .95rem;
+            color: #444;
+            margin-bottom: 4px;
+        }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .page-actions { display: none; }
+            .receipt { box-shadow: none; border: none; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-actions">
+    <a href="{% url 'inventory:sale_list' %}"><i class="bi bi-arrow-left"></i> Back to Sales</a>
+    <button class="btn-print" onclick="window.print()"><i class="bi bi-printer"></i> Print Receipt</button>
+</div>
+
+<div class="receipt">
+    <div class="receipt-header">
+        <div class="logo-wrap">
+            {% if shop.logo %}
+              <img src="{{ shop.logo.url }}" class="logo-img" alt="{{ shop.shop_name }} logo">
+            {% else %}
+              <i class="bi bi-gem logo-fallback"></i>
+            {% endif %}
+        </div>
+        <!-- <p class="brand">{{ shop.shop_name }}</p> -->
+        {% if shop.tagline %}<div class="tagline">{{ shop.tagline }}</div>{% endif %}
+        <div class="hr-divider"></div>
+    </div>
+
+    <div class="receipt-body">
+        <div class="receipt-meta">
+            <div>Receipt No.<br><strong>INV-{{ sale.pk|stringformat:"05d" }}</strong></div>
+            <div style="text-align:right;">Date<br><strong>{{ sale.sale_date|date:"d M Y, h:i A" }}</strong></div>
+        </div>
+
+        <div class="customer-block">
+            <div class="section-label">Billed To</div>
+            <div class="name">{{ sale.customer_name }}</div>
+            {% if sale.customer_contact %}<div>{{ sale.customer_contact }}</div>{% endif %}
+            {% if sale.customer_address %}<div>{{ sale.customer_address }}</div>{% endif %}
+        </div>
+
+        <div class="section-label">Item</div>
+        <table class="items">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th class="num">Qty</th>
+                    <th class="num">Unit Price</th>
+                    <th class="num">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="item-name">{{ sale.product.name }}</div>
+                        <div class="item-meta">
+                            SKU {{ sale.product.sku }}
+                            {% if sale.product.weight %} &middot; {{ sale.product.weight_display }}{% endif %}
+                            {% if sale.product.metal_type %} &middot; {{ sale.product.get_metal_type_display }}{% endif %}
+                        </div>
+                    </td>
+                    <td class="num">{{ sale.quantity }}</td>
+                    <td class="num">Rs {{ sale.unit_price|intcomma }}</td>
+                    <td class="num">Rs {{ sale.line_gross|intcomma }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <div class="row-line"><span>Subtotal</span><span>Rs {{ sale.line_gross|intcomma }}</span></div>
+            {% if sale.discount %}
+            <div class="row-line discount-line"><span>Discount</span><span>- Rs {{ sale.discount|intcomma }}</span></div>
+            {% endif %}
+            <div class="grand-total"><span>Total Paid</span><span class="amount">Rs {{ sale.total_amount|intcomma }}</span></div>
+        </div>
+    </div>
+
+    <div class="receipt-footer">
+        <div class="thanks">{{ shop.receipt_note|default:"Thank you for shopping with us!" }}</div>
+        {% if shop.address %}{{ shop.address }}<br>{% endif %}
+        {% if shop.phone %}<i class="bi bi-telephone"></i> {{ shop.phone }}{% endif %}
+        {% if shop.phone and shop.email %} &middot; {% endif %}
+        {% if shop.email %}<i class="bi bi-envelope"></i> {{ shop.email }}{% endif %}
+        {% if shop.phone or shop.email %}<br>{% endif %}
+        Served by {{ sale.sold_by|default:"Staff" }} &middot; This is a computer-generated receipt.
+    </div>
+</div>
+
+</body>
+</html>

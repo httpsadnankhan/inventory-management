@@ -1,0 +1,113 @@
+{% extends "inventory/base.html" %}
+{% load humanize %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+{{ product_price_map|json_script:"product-price-map" }}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <h3 class="page-title mb-3"><i class="bi bi-cash-coin"></i> {{ title }}</h3>
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="card card-stat p-4">
+      <form method="post" id="sale-form">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Product</label>
+          {{ form.product }}
+          {{ form.product.errors }}
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Quantity Sold</label>
+            {{ form.quantity }}
+            {{ form.quantity.errors }}
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Unit Price (Rs)</label>
+            {{ form.unit_price }}
+            {{ form.unit_price.errors }}
+            <small class="text-muted">Auto-filled from product, editable for negotiated prices.</small>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Discount (Rs, optional)</label>
+            {{ form.discount }}
+            {{ form.discount.errors }}
+          </div>
+        </div>
+
+        <div class="total-highlight d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted">Total Payable Amount</span>
+          <span class="fs-4 fw-bold" id="total-preview">Rs 0</span>
+        </div>
+
+        <hr>
+        <h6 class="text-muted">Customer / Buyer Details</h6>
+        <div class="mb-3">
+          <label class="form-label">Customer Name</label>
+          {{ form.customer_name }}
+          {{ form.customer_name.errors }}
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Contact Number</label>
+            {{ form.customer_contact }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Address</label>
+            {{ form.customer_address }}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Notes</label>
+          {{ form.notes }}
+        </div>
+        <button type="submit" class="btn btn-amj"><i class="bi bi-check-lg"></i> {% if sale %}Save Changes{% else %}Record Sale &amp; Update Inventory{% endif %}</button>
+        <a href="{% url 'inventory:sale_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const priceMap = JSON.parse(document.getElementById('product-price-map').textContent);
+  const productSelect = document.getElementById('id_product');
+  const qtyInput = document.getElementById('id_quantity');
+  const unitPriceInput = document.getElementById('id_unit_price');
+  const discountInput = document.getElementById('id_discount');
+  const totalPreview = document.getElementById('total-preview');
+
+  function formatMoney(n) {
+    if (isNaN(n)) n = 0;
+    return 'Rs ' + n.toLocaleString('en-PK', { maximumFractionDigits: 0 });
+  }
+
+  function recalcTotal() {
+    const qty = parseFloat(qtyInput.value) || 0;
+    const unitPrice = parseFloat(unitPriceInput.value) || 0;
+    const discount = parseFloat(discountInput.value) || 0;
+    let total = (qty * unitPrice) - discount;
+    if (total < 0) total = 0;
+    totalPreview.textContent = formatMoney(total);
+  }
+
+  function autofillUnitPrice() {
+    // Only auto-fill if the field is currently empty (don't clobber edits).
+    if (!unitPriceInput.value && productSelect.value && priceMap[productSelect.value] !== undefined) {
+      unitPriceInput.value = priceMap[productSelect.value];
+    }
+    recalcTotal();
+  }
+
+  if (productSelect && unitPriceInput) {
+    productSelect.addEventListener('change', function() {
+      unitPriceInput.value = '';
+      autofillUnitPrice();
+    });
+    [qtyInput, unitPriceInput, discountInput].forEach(function(el) {
+      if (el) el.addEventListener('input', recalcTotal);
+    });
+    autofillUnitPrice();
+  }
+})();
+</script>
+{% endblock %}

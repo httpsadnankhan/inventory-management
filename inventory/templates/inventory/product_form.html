@@ -1,0 +1,77 @@
+{% extends "inventory/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <h3 class="fw-bold mb-3"><i class="bi bi-box-seam"></i> {{ title }}</h3>
+    <div class="card card-stat p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if product and product.image %}
+          <div class="mb-3 text-center">
+            <img src="{{ product.image.url }}" style="max-height:120px;border-radius:10px;">
+          </div>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label">Product Name</label>
+          {{ form.name }}
+          {{ form.name.errors }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Product Image</label>
+          {{ form.image }}
+          {{ form.image.errors }}
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Category
+              <a href="{% url 'inventory:category_add' %}" class="small">(+ add new)</a>
+            </label>
+            {{ form.category }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Metal Type</label>
+            {{ form.metal_type }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Weight (optional)</label>
+            {{ form.weight }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Weight Unit</label>
+            {{ form.weight_unit }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Quantity</label>
+            {{ form.quantity }}
+            {{ form.quantity.errors }}
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Buy Price (Rs)</label>
+            {{ form.buy_price }}
+            {{ form.buy_price.errors }}
+            <small class="text-muted">What the shop paid, per unit.</small>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Sale Price (Rs)</label>
+            {{ form.sale_price }}
+            {{ form.sale_price.errors }}
+            <small class="text-muted">Standard selling price, per unit.</small>
+          </div>
+        </div>
+        {% if form.non_field_errors %}<div class="alert alert-warning">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          {{ form.description }}
+        </div>
+        <button type="submit" class="btn btn-amj"><i class="bi bi-check-lg"></i> Save Product</button>
+        <a href="{% url 'inventory:product_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

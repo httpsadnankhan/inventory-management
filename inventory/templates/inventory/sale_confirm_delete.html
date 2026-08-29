@@ -1,0 +1,23 @@
+{% extends "inventory/base.html" %}
+{% load humanize %}
+{% block title %}Delete Sale{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <h3 class="page-title mb-3"><i class="bi bi-trash3-fill text-danger"></i> Delete Sale Record</h3>
+    <div class="card card-stat p-4">
+      <p class="mb-1"><strong>{{ sale.product.name }}</strong> &times; {{ sale.quantity }} — Rs {{ sale.total_amount|intcomma }}</p>
+      <p class="text-muted">Sold to {{ sale.customer_name }} on {{ sale.sale_date|date:"d M Y" }}</p>
+      <div class="alert alert-info">
+        Deleting this sale will add {{ sale.quantity }} unit(s) of <strong>{{ sale.product.name }}</strong> back
+        into stock.
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash3"></i> Yes, Delete This Sale</button>
+        <a href="{% url 'inventory:sale_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

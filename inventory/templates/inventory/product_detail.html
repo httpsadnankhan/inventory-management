@@ -1,0 +1,113 @@
+{% extends "inventory/base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-4 mb-3">
+    <div class="card card-stat p-3 text-center">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" style="max-height:220px;object-fit:cover;border-radius:10px;" class="mb-3">
+      {% else %}
+        <div class="d-flex align-items-center justify-content-center bg-light mb-3" style="height:220px;border-radius:10px;">
+          <i class="bi bi-gem" style="font-size:3rem;color:#b8860b;"></i>
+        </div>
+      {% endif %}
+      <h4 class="fw-bold">{{ product.name }}</h4>
+      <p class="text-muted mb-1">SKU: {{ product.sku }}</p>
+      <p class="text-muted mb-1">Category: {{ product.category|default:"—" }}</p>
+      <p class="text-muted mb-1">
+        <span class="badge bg-secondary">{{ product.get_metal_type_display }}</span>
+        {% if product.weight %}<span class="badge bg-light text-dark border">{{ product.weight_display }}</span>{% endif %}
+      </p>
+      {% load humanize %}
+      <div class="d-flex justify-content-center gap-4 mt-2">
+        <div>
+          <small class="text-muted d-block">Buy Price</small>
+          <h6 class="mb-0">Rs {{ product.buy_price|intcomma }}</h6>
+        </div>
+        <div>
+          <small class="text-muted d-block">Sale Price</small>
+          <h6 class="mb-0">Rs {{ product.sale_price|intcomma }}</h6>
+        </div>
+        <div>
+          <small class="text-muted d-block">Margin</small>
+          <h6 class="mb-0 text-success">Rs {{ product.profit_margin|intcomma }}</h6>
+        </div>
+      </div>
+      <p>
+        {% if product.is_low_stock %}
+          <span class="badge badge-low">Low Stock — {{ product.quantity }} left</span>
+        {% else %}
+          <span class="badge badge-ok">In Stock — {{ product.quantity }} units</span>
+        {% endif %}
+      </p>
+      {% if product.description %}<p class="text-muted small">{{ product.description }}</p>{% endif %}
+      <a href="{% url 'inventory:product_edit' product.pk %}" class="btn btn-outline-dark btn-sm"><i class="bi bi-pencil-square"></i> Edit</a>
+      <a href="{% url 'inventory:product_delete' product.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3"></i> Delete</a>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card card-stat p-3 mb-3">
+      <h5><i class="bi bi-cash-coin"></i> Sales History</h5>
+      {% if sales %}
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Date</th><th>Qty</th><th>Customer</th><th>Contact</th><th>Discount</th><th>Total</th><th>Sold By</th><th></th></tr></thead>
+          <tbody>
+          {% for s in sales %}
+            <tr>
+              <td>{{ s.sale_date|date:"d M Y" }}</td>
+              <td>{{ s.quantity }}</td>
+              <td>{{ s.customer_name }}</td>
+              <td>{{ s.customer_contact|default:"—" }}</td>
+              <td>{% if s.discount %}Rs {{ s.discount|intcomma }}{% else %}—{% endif %}</td>
+              <td>Rs {{ s.total_amount|intcomma }}</td>
+              <td>{{ s.sold_by|default:"—" }}</td>
+              <td>
+                <a href="{% url 'inventory:sale_receipt' s.pk %}" target="_blank" class="btn btn-sm btn-outline-dark" title="Print receipt"><i class="bi bi-receipt-cutoff"></i></a>
+                <a href="{% url 'inventory:sale_edit' s.pk %}" class="btn btn-sm btn-outline-secondary" title="Edit"><i class="bi bi-pencil-square"></i></a>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="text-muted mb-0">No sales recorded for this product yet.</p>
+      {% endif %}
+    </div>
+
+    <div class="card card-stat p-3">
+      <h5><i class="bi bi-tools"></i> Repair History</h5>
+      {% if repairs %}
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Sent To</th><th>Qty</th><th>Sent</th><th>Expected</th><th>Received</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+          {% for r in repairs %}
+            <tr>
+              <td>{{ r.sent_to }}</td>
+              <td>{{ r.quantity }}</td>
+              <td>{{ r.sent_date }}</td>
+              <td>{{ r.expected_return_date|default:"—" }}</td>
+              <td>{{ r.received_date|default:"—" }}</td>
+              <td>
+                {% if r.status == 'SENT' %}
+                  <span class="badge badge-repair">Out for Repair</span>
+                {% else %}
+                  <span class="badge badge-received">Received</span>
+                {% endif %}
+              </td>
+              <td><a href="{% url 'inventory:repair_edit' r.pk %}" class="btn btn-sm btn-outline-secondary" title="Edit"><i class="bi bi-pencil-square"></i></a></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="text-muted mb-0">No repair records for this product yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
