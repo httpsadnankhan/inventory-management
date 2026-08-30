@@ -64,6 +64,14 @@ class Product(models.Model):
             return ""
         unit = "g" if self.weight_unit == "GRAM" else "tola"
         return f"{self.weight} {unit}"
+
+    @property
+    def is_in_stock(self):
+        return self.quantity > 0
+
+    @property
+    def is_out_of_stock(self):
+        return self.quantity <= 0
     
     def get_absolute_url(self):
         return reverse("inventory:product_detail", args=[self.pk])

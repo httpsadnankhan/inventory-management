@@ -43,10 +43,10 @@
           <td>Rs {{ p.sale_price|intcomma }}</td>
           <td>Rs {{ p.total_value|floatformat:0|intcomma }}</td>
           <td>
-            {% if p.is_low_stock %}
-              <span class="badge badge-low">Low Stock</span>
-            {% else %}
+            {% if p.is_in_stock %}
               <span class="badge badge-ok">In Stock</span>
+            {% else %}
+              <span class="badge bg-secondary">Out of Stock</span>
             {% endif %}
           </td>
           <td class="d-flex gap-1">

@@ -34,10 +34,10 @@
         </div>
       </div>
       <p>
-        {% if product.is_low_stock %}
-          <span class="badge badge-low">Low Stock — {{ product.quantity }} left</span>
-        {% else %}
+        {% if product.is_in_stock %}
           <span class="badge badge-ok">In Stock — {{ product.quantity }} units</span>
+        {% else %}
+          <span class="badge bg-secondary">Out of Stock — {{ product.quantity }} units</span>
         {% endif %}
       </p>
       {% if product.description %}<p class="text-muted small">{{ product.description }}</p>{% endif %}
