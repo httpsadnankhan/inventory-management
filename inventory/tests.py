@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from .forms import ProductForm
 from .models import Product, Category
 
 
@@ -31,3 +32,32 @@ class ProductStockStatusTests(TestCase):
 
         self.assertTrue(product.is_in_stock)
         self.assertFalse(product.is_out_of_stock)
+
+    def test_duplicate_product_name_is_invalid(self):
+        category = Category.objects.create(name="Rings")
+        Product.objects.create(
+            name="Gold Ring",
+            sku="RING-001",
+            category=category,
+            quantity=2,
+            buy_price=100,
+            sale_price=150,
+        )
+
+        form = ProductForm(
+            data={
+                "name": "Gold Ring",
+                "category": category.id,
+                "metal_type": "GOLD",
+                "weight": 5,
+                "weight_unit": "GRAM",
+                "quantity": 1,
+                "buy_price": 90,
+                "sale_price": 160,
+                "description": "Duplicate test",
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+        self.assertIn("already exists", form.errors["name"][0])

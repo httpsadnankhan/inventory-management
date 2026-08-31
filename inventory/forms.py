@@ -32,6 +32,18 @@ class ProductForm(StyledFormMixin, forms.ModelForm):
         self.fields["category"].empty_label = "-- Select category (optional) --"
         self.fields["weight"].required = False
     
+    def clean_name(self):
+        name = (self.cleaned_data.get("name") or "").strip()
+        if not name:
+            return name
+
+        queryset = Product.objects.filter(name__iexact=name)
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise forms.ValidationError("A product with this name already exists.")
+        return name
+
     def clean(self):
         cleaned_data = super().clean()
         buy = cleaned_data.get("buy_price")

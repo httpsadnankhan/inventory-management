@@ -17,7 +17,7 @@ class Product(models.Model):
     METAL_CHOICES = [("GOLD", "Gold"), ("SILVER", "Silver"), ("OTHER", "Other")]
     WEIGHT_CHOICES = [("GRAM", "Grams"), ("TOLA", "Tola")]
     
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     image = models.ImageField(upload_to="products/", blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
     metal_type = models.CharField(max_length=10, choices=METAL_CHOICES, default="GOLD")
