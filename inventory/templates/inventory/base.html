@@ -33,6 +33,7 @@
             font-weight: 700;
             letter-spacing: 1.5px;
             font-size: 1.35rem;
+            line-height: 1.1;
         }
         .navbar-amj .navbar-brand small {
             display: block;
@@ -42,8 +43,44 @@
             color: #cbb98a;
             font-weight: 500;
         }
+        .navbar-amj .navbar-toggler {
+            border-color: rgba(255,255,255,.45);
+            padding: .35rem .5rem;
+        }
+        .navbar-amj .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(184, 134, 11, 0.35);
+        }
+        .navbar-amj .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,1%29' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
         .navbar-amj .nav-link { color: #eee !important; font-weight: 500; font-size: .93rem; }
         .navbar-amj .nav-link.active, .navbar-amj .nav-link:hover { color: var(--amj-gold) !important; }
+        @media (max-width: 991.98px) {
+            .navbar-amj {
+                padding-top: .6rem;
+                padding-bottom: .6rem;
+            }
+            .navbar-amj .navbar-brand {
+                font-size: 1.02rem;
+                max-width: calc(100% - 80px);
+            }
+            .navbar-amj .navbar-brand small {
+                display: none;
+            }
+            .navbar-amj .navbar-collapse {
+                background: rgba(20, 20, 20, 0.96);
+                border-radius: 0 0 12px 12px;
+                margin-top: .5rem;
+                padding: .75rem 1rem;
+            }
+            .navbar-amj .navbar-nav {
+                gap: .15rem;
+            }
+            .navbar-amj .navbar-text {
+                margin-bottom: .5rem;
+                display: block;
+            }
+        }
         .btn-amj { background: var(--amj-gold); border-color: var(--amj-gold); color: #1c1c1c; font-weight: 600; }
         .btn-amj:hover { background: var(--amj-gold-dark); border-color: var(--amj-gold-dark); color: #fff; }
         .card-stat { border: none; border-radius: 14px; box-shadow: 0 2px 14px rgba(0,0,0,.07); background: #fff; }
@@ -70,7 +107,7 @@
 <nav class="navbar navbar-expand-lg navbar-amj sticky-top">
   <div class="container-fluid px-4">
     <a class="navbar-brand" href="{% url 'inventory:dashboard' %}">{{ shop.shop_name }}<small>INVENTORY MANAGEMENT SYSTEM</small></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navMain">
