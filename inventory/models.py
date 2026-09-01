@@ -16,7 +16,7 @@ class Category(models.Model):
 class Product(models.Model):
     METAL_CHOICES = [("GOLD", "Gold"), ("SILVER", "Silver"), ("OTHER", "Other")]
     WEIGHT_CHOICES = [("GRAM", "Grams"), ("TOLA", "Tola")]
-    
+
     name = models.CharField(max_length=200, unique=True)
     image = models.ImageField(upload_to="products/", blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
@@ -31,19 +31,45 @@ class Product(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="products_added")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         ordering = ["-created_at"]
+
     def __str__(self):
         return f"{self.name} ({self.sku})"
-    
+
+    @staticmethod
+    def get_sku_prefix(shop_name):
+        words = [word for word in str(shop_name or "").split() if word]
+        if not words:
+            return "SKU"
+
+        if len(words) == 1:
+            return words[0][:3].upper()
+
+        if len(words) == 2:
+            first_word = words[0]
+            second_word = words[1]
+            return f"{first_word[:2]}{second_word[0:1]}".upper()
+
+        return "".join(word[0].upper() for word in words)
+
     def save(self, *args, **kwargs):
         if not self.sku:
             from .models import ShopSettings
             shop = ShopSettings.load()
-            prefix = "".join([w[0].upper() for w in shop.shop_name.split()] or ["SKU"])
-            last = Product.objects.order_by("-id").first()
-            self.sku = f"{prefix}-{(last.id + 1 if last else 1):04d}"
+            prefix = self.get_sku_prefix(shop.shop_name)
+            existing = Product.objects.filter(sku__startswith=f"{prefix}-")
+            last_number = 0
+            for product in existing.iterator():
+                if not product.sku:
+                    continue
+                try:
+                    suffix = int(product.sku.rsplit("-", 1)[-1])
+                    last_number = max(last_number, suffix)
+                except (TypeError, ValueError):
+                    continue
+            self.sku = f"{prefix}-{(last_number + 1):04d}"
         super().save(*args, **kwargs)
     
     @property

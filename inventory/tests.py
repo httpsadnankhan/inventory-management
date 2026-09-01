@@ -1,7 +1,71 @@
 from django.test import TestCase
 
 from .forms import ProductForm
-from .models import Product, Category
+from .models import Product, Category, ShopSettings
+
+
+class ProductSkuGenerationTests(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name="Rings")
+        self.shop = ShopSettings.load()
+        self.shop.shop_name = "My Shop"
+        self.shop.save()
+
+    def test_sku_number_uses_active_product_count_after_delete(self):
+        Product.objects.create(
+            name="Gold Ring",
+            category=self.category,
+            quantity=1,
+            buy_price=100,
+            sale_price=150,
+        )
+        Product.objects.create(
+            name="Silver Ring",
+            category=self.category,
+            quantity=1,
+            buy_price=120,
+            sale_price=180,
+        )
+
+        Product.objects.filter(name="Silver Ring").delete()
+
+        product = Product.objects.create(
+            name="Diamond Ring",
+            category=self.category,
+            quantity=1,
+            buy_price=200,
+            sale_price=260,
+        )
+
+        self.assertEqual(product.sku, "MYS-0002")
+
+    def test_two_word_shop_name_uses_custom_prefix(self):
+        self.shop.shop_name = "Royal Gold"
+        self.shop.save()
+
+        product = Product.objects.create(
+            name="Gold Ring",
+            category=self.category,
+            quantity=1,
+            buy_price=100,
+            sale_price=150,
+        )
+
+        self.assertEqual(product.sku.startswith("ROG-"), True)
+
+    def test_three_word_shop_name_uses_first_letter_of_each_word(self):
+        self.shop.shop_name = "Gold Jewel Palace"
+        self.shop.save()
+
+        product = Product.objects.create(
+            name="Gold Ring",
+            category=self.category,
+            quantity=1,
+            buy_price=100,
+            sale_price=150,
+        )
+
+        self.assertEqual(product.sku.startswith("GJP-"), True)
 
 
 class ProductStockStatusTests(TestCase):
